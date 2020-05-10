@@ -1,9 +1,8 @@
 ### Wstęp do mutacji czyli pierwsze kroki młodego dr Python i ms Kubernetes w świecie Dynamic Admission Control
 
 Czy zastanawialiście się kiedyś jak mutację chcielibyście przejść? Pajęczy zmysł,
-laser z oczu niczym cykl, a może umiejętność strzelania z łuku jak Archer? Mi ostatnio zamażyłos się 
-<coś tam > albo dodatkowy kontener(sidecar) w każdym podzie. Ale życie było by wspaniałe <cos>,
-ale podobno sidecar jest łatwiejsze. Sprawdź my to. 
+laser z oczu niczym cykl, a może umiejętność strzelania z łuku jak Archer? Mnie ostatnio wymarzyło się
+dodatkowy kontener(sidecar) w każdym podzie. Zapraszam do labolatorium yamlo magii dr Python i ms Kubernetes na pierwsze kroki w Dynamic Admission Control. 
 
 [Dynamic Admission Control](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/) 
 w skrócie są to webhooki które można dodać w czasie runtime. Mamy dwa typy admission webhooks, mutacje(mutating admission webhook) i 
@@ -11,15 +10,16 @@ walidacje(validating admission webhook).
 
 <przerysować flow https://kubernetes.io/blog/2019/03/21/a-guide-to-kubernetes-admission-controllers/>
 
-Taka walidacja może dać wiele dobrego, ale mutacja ogromne możliości dobra i zła. 
-Ważne żeby dobre strony nie przesłoniły tych złych, dlatego zamiemy mutacją. Poza tym drugi projekt który potrzebuje tego sidecaru.
+Taka walidacja może dać wiele dobrego, ale mutacja ogromne możliości kreownia i niszczenia. 
+A najważniejsze że dobre strony nie przesłoniły tych złych, dlatego zamiemy się mutacją. Poza jest drugi projekt który potrzebuje tego sidecaru.
 
 <drake mem z dwiema głowami>  
 
-Do przeprowadzenia mutacji potrzebne nam będzie waż(Python, tu akurat stawiamy na świerze produkty, ale sprawdzone więc wersja 3.8), flaszka(Flask) oraz księga zaklęć yamlowych. 
+Do przeprowadzenia mutacji potrzebne nam będzie wąż(Python, tu akurat stawiamy na świerze produkty, ale sprawdzone więc wersja 3.8), flaszka(Flask) oraz księga zaklęć yamlowych. 
 Oraz laboratorium w postaci drewnianego laptopa oraz [kind](https://github.com/kubernetes-sigs/kind).
 
-Do generowania certifkatów użyłem skryptów z tego [tutorialu](https://github.com/morvencao/kube-mutating-webhook-tutorial/tree/master/deployment)
+Przy generowania certifkatów pójdziemy na skróty i użujemy skryptów z [tutoriala](https://github.com/morvencao/kube-mutating-webhook-tutorial/tree/master/deployment). 
+Bo tak jest szybciej o czym mówi definicja skrótu. 
 ```bash
 ./webhook-create-signed-cert.sh --service mutate-webhook-svc --namespace default --secret mutate-webhook-secret
 export CA_BUNDLE=$(kubectl get secrets -o jsonpath="{.items[?(@.metadata.annotations['kubernetes\.io/service-account\.name']=='default')].data.ca\.crt}")
@@ -82,14 +82,14 @@ CMD python mutate.py
 
 A teraz bierzemy flaszkę i węża oraz kilka prostych zaklęć na poziomie biegłego nowicujasz gildii Trzech Nieustających Ścieżek Kopiuj Wklej Zamień. 
 Mieszamy i dostajemy naszego webhooka które będzie mutował nasze pody.
-K8s puka do naszego webhook z requestem tworzącym pod, my go odbieramy i odsyłamy co chcemy w nim zmienić. W podpowiedzimy 
-musimy podać wersje api(apiVersion), oraz typ(kind) i request, już wewmątrze jego dajemy pozowolnie na 
-dalsze przetwarzanie requestu przez k8s z danym uid. A przedewszystkim podajemy typ(patchType) oraz naszą zmiane(patch). 
-Nasza zmiana być odpowiednio kodowana, ale aż tak czarną magią nie będziemy się dziś zajmować. 
+A dzieje się to tak: k8s puka do naszego webhook z requestem tworzącym pod, my go odbieramy i odsyłamy zmiany. W odpowiedzi 
+musimy podać wersje api(`apiVersion`), oraz typ(`kind`) oraz request. W wewmątrze request dajemy pozowolnie(`allow`) na 
+dalsze przetwarzanie requestu przez k8s wraz z uid(`uid`) odebranego request. A przedewszystkim podajemy typ(`patchType`) oraz naszą zmiane(`patch`). 
+Nasza zmiana musi być odpowiednio kodowana, ale aż tak czarną magią nie będziemy się dziś zajmować. 
 
-Jak zmutować naszego poda? Jest to dość proste musimy podać jaka operację(op, bo operation to za długa nazwa) chcemy wykonać, 
-ścieżkę(path) oraz wartość(value). My chcemy dodać side car do kontenerów z bazowego requestu, dlatego odczytuje istniejącą
-zawartość i dodajemy nasz kontener.  
+Jak zmutować naszego poda? Jest to dość proste w `patch` musimy podać jaka operację(`op`, bo operation to za długa nazwa) chcemy wykonać, 
+ścieżkę(`path`) oraz wartość(`value`). My chcemy dodać side car do kontenerów z bazowego requestu, dlatego odczytuje istniejącą
+zawartość `request_info['request']['object']['spec']['containers']` i dodajemy naszą konfigrurację kontenera.  
 ```python
 import base64
 import jsonpatch
@@ -133,7 +133,7 @@ if __name__ == '__main__':
 
 ```
 
-Teraz musimy powiedzieć k8s gdzie pukać i kiedy, tu już bardziej zaawanowane umiejętności yamlo-magiczne. Tu są zasady.
+Teraz musimy powiedzieć k8s gdzie pukać i kiedy, tu już bardziej zaawanowane umiejętności yamlo magiczne. Tu są zasady.
 Tworzymy zasób MutatingWebhookConfiguration, który wskazuje gdzie ma zajrzeć oraz kiedy. ClientConfig określa do jakiego serwisu, 
 pod jaką ścieżkę oraz z jakim certyfikatem k8s wyślę request do przetworzenia. Rules decyduje które requesty tam trafią, 
 możemy wybierać requesty na podstawie, grupy albo wersji api, zasobu, czy też operacji.  

@@ -1,9 +1,9 @@
 ### Mutate webhook 
 Example Mutating Admission Controller Webhook 
 
-Install setup k8s example[Kind](https://kind.sigs.k8s.io/) 
+[Kind](https://kind.sigs.k8s.io/) used as Kubernetes cluster
 
-1. Create signed cert/key pair (use )
+1. Create signed cert/key pair (use script from https://github.com/morvencao/kube-mutating-webhook-tutorial)
 ```bash
 git clone https://github.com/morvencao/kube-mutating-webhook-tutorial
 ./kube-mutating-webhook-tutorial/deployment/webhook-create-signed-cert.sh --service mutate-webhook-svc --namespace default --secret mutate-webhook-secret
