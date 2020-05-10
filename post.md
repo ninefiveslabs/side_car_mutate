@@ -259,6 +259,7 @@ Events:
 
 Sukces, mamy nasz side car. Jeszcze tylko zebrać drużynę i możemy ruszać w dalszą przygodę. 
 
+Cały kod znajdziecie pod tym linkiem https://github.com/ninefiveslabs/side_car_mutate
 
 Linki:
  - https://kind.sigs.k8s.io/
