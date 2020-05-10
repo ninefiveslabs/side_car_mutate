@@ -1,4 +1,4 @@
-### Wstęp do mutacji czyli poradnik młodego dr Python i mister Kubernetes w świecie Dynamic Admission Control
+### Wstęp do mutacji czyli pierwsze kroki młodego dr Python i ms Kubernetes w świecie Dynamic Admission Control
 
 Czy zastanawialiście się kiedyś jak mutację chcielibyście przejść? Pajęczy zmysł,
 laser z oczu niczym cykl, a może umiejętność strzelania z łuku jak Archer? Mi ostatnio zamażyłos się 
@@ -259,5 +259,9 @@ Events:
 
 Sukces, mamy nasz side car. Jeszcze tylko zebrać drużynę i możemy ruszać w dalszą przygodę. 
 
-Jeśli nie jesteście Maćkiem który udostępnił ten post bez czytania to pewnie nurtuje was jedno pytanie. Co się stanie jeśli 
-podmienimy cały request tworzący pod na deployment? Zobaczmy więc 
+
+Linki:
+ - https://kind.sigs.k8s.io/
+ - https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/
+ - https://medium.com/analytics-vidhya/how-to-write-validating-and-mutating-admission-controller-webhooks-in-python-for-kubernetes-1e27862cb798
+ - https://github.com/morvencao/kube-mutating-webhook-tutorial/tree/master/deployment

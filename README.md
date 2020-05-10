@@ -1,1 +1,33 @@
-TODO
+### Mutate webhook 
+Example Mutating Admission Controller Webhook 
+
+Install setup k8s example[Kind](https://kind.sigs.k8s.io/) 
+
+1. Create signed cert/key pair (use )
+```bash
+git clone https://github.com/morvencao/kube-mutating-webhook-tutorial
+./kube-mutating-webhook-tutorial/deployment/webhook-create-signed-cert.sh --service mutate-webhook-svc --namespace default --secret mutate-webhook-secret
+export CA_BUNDLE=$(kubectl get secrets -o jsonpath="{.items[?(@.metadata.annotations['kubernetes\.io/service-account\.name']=='default')].data.ca\.crt}")
+cat ./mutate_admission.yaml | ./kube-mutating-webhook-tutorial/deployment/webhook-patch-ca-bundle.sh > ./mutate_admission_ca.yaml 
+```
+ 1. Create image
+```bash
+docker build . -t mutate
+```
+
+ 2. Push image
+```bash
+kind load docker-image mutate
+```
+3. Create mutating webhook
+```bash
+kubectl apply -f webhook.yaml
+```
+4. Create Mutating Webhook Configuration
+```bash
+kubectl apply -f mutate_admission_ca.yaml
+```
+5. Mutate busbox
+```bash
+kubectl apply -f box.yaml
+```
